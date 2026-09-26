@@ -14,22 +14,25 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
 
-      - name: Create required files
+      - name: Create local config files
         run: |
           echo "GEMINI_API_KEY=MY_GEMINI_API_KEY" > .env
           echo "sdk.dir=$ANDROID_HOME" > local.properties
 
-      - name: Fix gradle release signing
+      - name: Remove release signing config requirement
         run: |
           sed -i 's/signingConfig = signingConfigs.getByName("release")/\/\/ signingConfig removed/g' app/build.gradle.kts
 
       - name: Build Debug APK
-        run: gradle assembleDebug --no-daemon
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
